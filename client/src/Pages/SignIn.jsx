@@ -1,22 +1,20 @@
-// import React from 'react'
-
-// export default function SignIn() {
-//   return (
-//     <div>Sign In</div>
-//   )
-// }
-
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+
+import { useDispatch, useSelector } from 'react-redux';  
+
+import { signInStart, signInSuccess, signInFailure} from '../redux/user/userSlice';
+
+
 
 export default function SignIn() {
 
   //initialize
   const [formData, setFormData] = useState({})
-  const [error, setError] = useState(null);// handle error
-  const [loading, setLoading] = useState(false); //handle loading state effects
+  const {loading, error} = useSelector((state) => state.user); // handle loading and error
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -30,7 +28,8 @@ export default function SignIn() {
 
     //use try catch to handle possible error in the front end
     try {
-      setLoading(true) // set loading state, before request
+      dispatch(signInStart()); 
+      
     const res = await fetch('/api/auth/signin', 
     {
       method: 'POST',
@@ -41,19 +40,17 @@ export default function SignIn() {
     });
     const data = await res.json();
     console.log(data);
-
     // loading condition//
-    if(data.success === false){ // if there is an error set loading to false
-      setLoading(false); 
-      setError(data.message); 
+    if(data.success === false){ // if there is an error, dispatch signin failure
+      dispatch(signInFailure(data.message));
       return;
     }
-    setLoading(false); // otherwise, set loading to false because loading is completed
-    setError(null) //remove error message, if user input is fine
-    navigate('/'); // go to Sign In page, if user Signed Up
+
+    dispatch(signInSuccess(data));
+    navigate('/'); // go to home page, if user Signed In
+
     } catch (error) {
-      setLoading(false)
-      setError(error.message); //set error to error message
+      dispatch(signInFailure(error.message));
     }
   };
   //console.log(formData);
