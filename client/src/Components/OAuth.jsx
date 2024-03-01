@@ -8,7 +8,6 @@ export default function OAuth() {
 
   //initialize
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
 
   const handleGoogleClick = async () => {
@@ -18,7 +17,6 @@ export default function OAuth() {
 
       //create pop up request
       const result = await signInWithPopup(auth, provider);
-
 
       //using google account, send nesasary user information to the backend - name, email & photo.
       const res = await fetch('/api/auth/google', {
